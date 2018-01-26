@@ -1,1 +1,8 @@
 *.o
+
+# Programming Assignment 1
+/assignments/PA2/cgen
+/assignments/PA2/cool-lex.cc
+/assignments/PA2/lexer
+/assignments/PA2/parser
+/assignments/PA2/semant
