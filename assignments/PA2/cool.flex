@@ -72,17 +72,19 @@ INHERITS        inherits
  /*
   *  The multiple-character operators.
   */
-<string>\\b   { strcat(string_buf, "\b"); }
-<string>\\t   { strcat(string_buf, "\t"); }
-<string>\\n   { strcat(string_buf, "\n"); }
-<string>\\f   { strcat(string_buf, "\f"); }
-<string>[^\\b\\t\\n\\f"]* { strcat(string_buf, yytext); }
-<string>\"    {
-                cool_yylval.symbol = stringtable.add_string(string_buf);
-                BEGIN 0;
-                return (STR_CONST);
-              }
-\"            { BEGIN string; }
+<string>\\$               { strcat(string_buf, ""); curr_lineno++; }
+<string>\\b               { strcat(string_buf, "\b"); }
+<string>\\t               { strcat(string_buf, "\t"); }
+<string>\\n               { strcat(string_buf, "\n"); }
+<string>\\f               { strcat(string_buf, "\f"); }
+<string>[^\\b\\t\\n\\f"]+ { strcat(string_buf, yytext); }
+<string>\"                {
+                            cool_yylval.symbol = stringtable.add_string(string_buf);
+                            BEGIN 0;
+                            string_buf[0] = '\0';
+                            return (STR_CONST);
+                          }
+\"                        { BEGIN string; }
 
 {DARROW}		{ return (DARROW); }
 {CLASS}     { return (CLASS); }
@@ -102,8 +104,6 @@ INHERITS        inherits
 "{" |
 "}"         {
               printf("#%i '%s'\n", curr_lineno, yytext);
-              /* cool_yylval.symbol = stringtable.add_string(yytext); */
-              /* return (0); */
             }
 \n          { curr_lineno++; }
 [ \t]       ;
