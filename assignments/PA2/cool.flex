@@ -81,6 +81,32 @@ INHERITS        inherits
  /*
   *  The multiple-character operators.
   */
+
+{DARROW}		{ return (DARROW); }
+
+ /*
+  * Keywords are case-insensitive except for the values true and false,
+  * which must begin with a lower-case letter.
+  */
+
+{CLASS}     { return (CLASS); }
+{INHERITS}  { return (INHERITS); }
+{TRUE} {
+          cool_yylval.boolean = 1;
+          return BOOL_CONST;
+        }
+{FALSE} {
+          cool_yylval.boolean = 0;
+          return BOOL_CONST;
+        }
+
+ /*
+  *  String constants (C syntax)
+  *  Escape sequence \c is accepted for all characters c. Except for 
+  *  \n \t \b \f, the result is c.
+  *
+  */
+
 <string>\\$               { strcat(string_buf, ""); curr_lineno++; }
 <string>\\b               { strcat(string_buf, "\b"); }
 <string>\\t               { strcat(string_buf, "\t"); }
@@ -95,9 +121,6 @@ INHERITS        inherits
                           }
 \"                        { BEGIN string; }
 
-{DARROW}		{ return (DARROW); }
-{CLASS}     { return (CLASS); }
-{INHERITS}  { return (INHERITS); }
 {ID}        {
               cool_yylval.symbol = idtable.add_string(yytext);
               return (OBJECTID);
@@ -116,19 +139,5 @@ INHERITS        inherits
             }
 \n          { curr_lineno++; }
 [ \t]       ;
-
- /*
-  * Keywords are case-insensitive except for the values true and false,
-  * which must begin with a lower-case letter.
-  */
-
-
- /*
-  *  String constants (C syntax)
-  *  Escape sequence \c is accepted for all characters c. Except for 
-  *  \n \t \b \f, the result is c.
-  *
-  */
-
 
 %%
