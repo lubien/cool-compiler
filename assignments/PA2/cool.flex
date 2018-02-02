@@ -55,13 +55,42 @@ CAPITAL_LETTER  [A-Z]
 MINUSCLE_LETTER [a-z]
 LETTER          ({CAPITAL_LETTER}|{MINUSCLE_LETTER})
 DIGIT           [0-9]
+A               [aA]
+B               [bB]
+C               [cC]
+D               [dD]
+E               [eE]
+F               [fF]
+G               [gG]
+H               [hH]
+I               [iI]
+J               [jJ]
+k               [kK]
+L               [lL]
+M               [mM]
+N               [nN]
+O               [oO]
+P               [pP]
+Q               [qQ]
+R               [rR]
+S               [sS]
+T               [tT]
+U               [uU]
+W               [wW]
+V               [vV]
+X               [xX]
+Y               [yY]
+Z               [zZ]
 
 DARROW          =>
 
 TYPE            ({CAPITAL_LETTER}{LETTER}*|SELF_TYPE)
 ID              {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
+
 CLASS           class
 INHERITS        inherits
+TRUE            t{R}{U}{E}
+FALSE           f{A}{L}{S}{E}
 
 %%
 
