@@ -45,11 +45,22 @@ extern YYSTYPE cool_yylval;
 
 %}
 
+%START string
+
 /*
  * Define names for regular expressions here.
  */
 
+CAPITAL_LETTER  [A-Z]
+MINUSCLE_LETTER [a-z]
+LETTER          ({CAPITAL_LETTER}|{MINUSCLE_LETTER})
+DIGIT           [0-9]
+
 DARROW          =>
+TYPE            ({LETTER}{LETTER}*|SELF_TYPE)
+ID              {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
+CLASS           class
+INHERITS        inherits
 
 %%
 
@@ -61,7 +72,41 @@ DARROW          =>
  /*
   *  The multiple-character operators.
   */
+<string>\\b   { strcat(string_buf, "\b"); }
+<string>\\t   { strcat(string_buf, "\t"); }
+<string>\\n   { strcat(string_buf, "\n"); }
+<string>\\f   { strcat(string_buf, "\f"); }
+<string>[^\\b\\t\\n\\f"]* { strcat(string_buf, yytext); }
+<string>\"    {
+                cool_yylval.symbol = stringtable.add_string(string_buf);
+                BEGIN 0;
+                return (STR_CONST);
+              }
+\"            { BEGIN string; }
+
 {DARROW}		{ return (DARROW); }
+{CLASS}     { return (CLASS); }
+{INHERITS}  { return (INHERITS); }
+{ID}        {
+              cool_yylval.symbol = idtable.add_string(yytext);
+              return (OBJECTID);
+            }
+{TYPE}      {
+              cool_yylval.symbol = idtable.add_string(yytext);
+              return (TYPEID);
+            }
+":" |
+";" |
+"(" |
+")" |
+"{" |
+"}"         {
+              printf("#%i '%s'\n", curr_lineno, yytext);
+              /* cool_yylval.symbol = stringtable.add_string(yytext); */
+              /* return (0); */
+            }
+\n          { curr_lineno++; }
+[ \t]       ;
 
  /*
   * Keywords are case-insensitive except for the values true and false,
