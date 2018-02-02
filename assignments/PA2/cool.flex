@@ -83,6 +83,8 @@ Y               [yY]
 Z               [zZ]
 
 DARROW          =>
+ASSIGN          <-
+LE              <=
 
 INTERGER {DIGIT}+
 TYPE     ({CAPITAL_LETTER}{LETTER}*|SELF_TYPE)
@@ -128,7 +130,9 @@ FALSE    f{A}{L}{S}{E}
   *  The multiple-character operators.
   */
 
-{DARROW}		{ return (DARROW); }
+{DARROW}  { return (DARROW); }
+{ASSIGN}  { return (ASSIGN); }
+{LE}      { return (LE); }
 
  /*
   * Keywords are case-insensitive except for the values true and false,
@@ -200,6 +204,15 @@ FALSE    f{A}{L}{S}{E}
 "(" |
 ")" |
 "{" |
+"," |
+"." |
+"+" |
+"-" |
+"*" |
+"/" |
+"<" |
+"=" |
+"~" |
 "}"         {
               printf("#%i '%s'\n", curr_lineno, yytext);
             }
