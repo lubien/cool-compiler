@@ -84,14 +84,30 @@ Z               [zZ]
 
 DARROW          =>
 
-INTERGER        {DIGIT}+
-TYPE            ({CAPITAL_LETTER}{LETTER}*|SELF_TYPE)
-ID              {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
+INTERGER {DIGIT}+
+TYPE     ({CAPITAL_LETTER}{LETTER}*|SELF_TYPE)
+ID       {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
 
-CLASS           class
-INHERITS        inherits
-TRUE            t{R}{U}{E}
-FALSE           f{A}{L}{S}{E}
+CLASS    {C}{L}{A}{S}{S}
+ELSE     {E}{L}{S}{E}
+IF       {I}{F}
+FI       {F}{I}
+IN       {I}{N}
+INHERITS {I}{N}{H}{E}{R}{I}{T}{S}
+ISVOID   {I}{S}{V}{O}{I}{D}
+LET      {L}{E}{T}
+LOOP     {L}{O}{O}{P}
+POOL     {P}{O}{O}{L}
+THEN     {T}{H}{E}{N}
+WHILE    {W}{H}{I}{L}{E}
+CASE     {C}{A}{S}{E}
+ESAC     {E}{S}{A}{C}
+NEW      {N}{E}{W}
+OF       {O}{F}
+NOT      {N}{O}{T}
+
+TRUE     t{R}{U}{E}
+FALSE    f{A}{L}{S}{E}
 
 %%
 
@@ -120,7 +136,22 @@ FALSE           f{A}{L}{S}{E}
   */
 
 {CLASS}     { return (CLASS); }
+{ELSE}      { return (ELSE); }
+{IF}        { return (IF); }
+{FI}        { return (FI); }
+{IN}        { return (IN); }
 {INHERITS}  { return (INHERITS); }
+{ISVOID}    { return (ISVOID); }
+{LET}       { return (LET); }
+{LOOP}      { return (LOOP); }
+{POOL}      { return (POOL); }
+{THEN}      { return (THEN); }
+{WHILE}     { return (WHILE); }
+{CASE}      { return (CASE); }
+{ESAC}      { return (ESAC); }
+{NEW}       { return (NEW); }
+{OF}        { return (OF); }
+{NOT}       { return (NOT); }
 {TRUE}      {
               cool_yylval.boolean = 1;
               return BOOL_CONST;
