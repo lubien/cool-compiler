@@ -57,7 +57,8 @@ LETTER          ({CAPITAL_LETTER}|{MINUSCLE_LETTER})
 DIGIT           [0-9]
 
 DARROW          =>
-TYPE            ({LETTER}{LETTER}*|SELF_TYPE)
+
+TYPE            ({CAPITAL_LETTER}{LETTER}*|SELF_TYPE)
 ID              {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
 CLASS           class
 INHERITS        inherits
