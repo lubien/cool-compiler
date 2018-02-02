@@ -45,7 +45,7 @@ extern YYSTYPE cool_yylval;
 
 %}
 
-%START string
+%START string comment
 
 /*
  * Define names for regular expressions here.
@@ -64,10 +64,18 @@ INHERITS        inherits
 
 %%
 
+"--".*$       ;
+
  /*
   *  Nested comments
   */
 
+<comment>"*)"       { BEGIN 0; }
+<comment>\n         { curr_lineno++; }
+<comment>"*"/[^)]   ;
+<comment>")"        ;
+<comment>[^\*\)\n]+ ;
+"(*"                { BEGIN comment; }
 
  /*
   *  The multiple-character operators.
