@@ -84,6 +84,7 @@ Z               [zZ]
 
 DARROW          =>
 
+INTERGER        {DIGIT}+
 TYPE            ({CAPITAL_LETTER}{LETTER}*|SELF_TYPE)
 ID              {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
 
@@ -120,14 +121,14 @@ FALSE           f{A}{L}{S}{E}
 
 {CLASS}     { return (CLASS); }
 {INHERITS}  { return (INHERITS); }
-{TRUE} {
-          cool_yylval.boolean = 1;
-          return BOOL_CONST;
-        }
-{FALSE} {
-          cool_yylval.boolean = 0;
-          return BOOL_CONST;
-        }
+{TRUE}      {
+              cool_yylval.boolean = 1;
+              return BOOL_CONST;
+            }
+{FALSE}     {
+              cool_yylval.boolean = 0;
+              return BOOL_CONST;
+            }
 
  /*
   *  String constants (C syntax)
@@ -150,6 +151,10 @@ FALSE           f{A}{L}{S}{E}
                           }
 \"                        { BEGIN string; }
 
+{INTERGER}  {
+              cool_yylval.symbol = inttable.add_string(yytext);
+              return (INT_CONST);
+            }
 {ID}        {
               cool_yylval.symbol = idtable.add_string(yytext);
               return (OBJECTID);
@@ -158,6 +163,7 @@ FALSE           f{A}{L}{S}{E}
               cool_yylval.symbol = idtable.add_string(yytext);
               return (TYPEID);
             }
+
 ":" |
 ";" |
 "(" |
