@@ -204,6 +204,6 @@ FALSE    f{A}{L}{S}{E}
               printf("#%i '%s'\n", curr_lineno, yytext);
             }
 \n          { curr_lineno++; }
-[ \t]       ;
+[ \f\r\t\t] ;
 
 %%
