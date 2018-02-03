@@ -43,9 +43,11 @@ extern YYSTYPE cool_yylval;
  *  Add Your own definitions here
  */
 
+void append_string(char * yytext, int yyleng);
+
 %}
 
-%START string comment
+%START string string_worry comment
 
 /*
  * Define names for regular expressions here.
@@ -111,6 +113,9 @@ NOT      {N}{O}{T}
 TRUE     t{R}{U}{E}
 FALSE    f{A}{L}{S}{E}
 
+STRING_START  \"
+STRING_END    {STRING_START}
+
 %%
 
 "--".*$       ;
@@ -172,19 +177,63 @@ FALSE    f{A}{L}{S}{E}
   *
   */
 
-<string>\\$               { strcat(string_buf, ""); curr_lineno++; }
-<string>\\b               { strcat(string_buf, "\b"); }
-<string>\\t               { strcat(string_buf, "\t"); }
-<string>\\n               { strcat(string_buf, "\n"); }
-<string>\\f               { strcat(string_buf, "\f"); }
-<string>[^\\b\\t\\n\\f"]+ { strcat(string_buf, yytext); }
-<string>\"                {
-                            cool_yylval.symbol = stringtable.add_string(string_buf);
-                            BEGIN 0;
-                            string_buf[0] = '\0';
-                            return (STR_CONST);
-                          }
-\"                        { BEGIN string; }
+<string>{STRING_END}  {
+                        if (strlen(string_buf) == MAX_STR_CONST) {
+                          string_buf[0] = '\0';
+                          strcat(string_buf, "String constant too long");
+                          cool_yylval.error_msg = string_buf;
+                          BEGIN 0;
+                          return (ERROR);
+                        } else {
+                          cool_yylval.symbol = stringtable.add_string(string_buf);
+                          BEGIN 0;
+                          return (STR_CONST);
+                        }
+                      }
+<string>[^\n"\\]*\\   {
+                        yyless(yyleng - 1);
+                        append_string(yytext, yyleng);
+                        BEGIN string_worry;
+                      }
+<string>[^\n"\\]*\n   {
+                        curr_lineno++;
+                        string_buf[0] = '\0';
+                        strcat(string_buf, "Unterminated string constant");
+                        cool_yylval.error_msg = string_buf;
+                        BEGIN 0;
+                        return (ERROR);
+                      }
+<string>[^\n"\\]*     {
+                        append_string(yytext, yyleng);
+                      }
+<string_worry>\\n     {
+                        append_string("\n", 2);
+                        BEGIN string;
+                      }
+<string_worry>\\t     {
+                        append_string("\t", 2);
+                        BEGIN string;
+                      }
+<string_worry>\\b     {
+                        append_string("\b", 2);
+                        BEGIN string;
+                      }
+<string_worry>\\f     {
+                        append_string("\f", 2);
+                        BEGIN string;
+                      }
+<string_worry>\\?\n   {
+                        curr_lineno++;
+                        append_string("\n", 2);
+                        BEGIN string;
+                      }
+<string_worry>.       {
+                        BEGIN string;
+                      }
+{STRING_START}        {
+                        string_buf[0] = '\0';
+                        BEGIN string;
+                      }
 
 {INTERGER}  {
               cool_yylval.symbol = inttable.add_string(yytext);
@@ -220,3 +269,7 @@ FALSE    f{A}{L}{S}{E}
 [ \f\r\t\t] ;
 
 %%
+void append_string(char * yytext, int yyleng) {
+  int len = strlen(string_buf);
+  strncat(string_buf, yytext, MAX_STR_CONST - len);
+}
