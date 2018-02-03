@@ -249,6 +249,7 @@ STRING_END    {STRING_START}
             }
 
 ":" |
+"@" |
 ";" |
 "(" |
 ")" |
