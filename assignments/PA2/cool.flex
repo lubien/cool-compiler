@@ -44,6 +44,7 @@ extern YYSTYPE cool_yylval;
  */
 
 void append_string(char * yytext, int yyleng);
+void set_error_message(char * msg);
 
 %}
 
@@ -179,9 +180,7 @@ STRING_END    {STRING_START}
 
 <string>{STRING_END}  {
                         if (strlen(string_buf) == MAX_STR_CONST) {
-                          string_buf[0] = '\0';
-                          strcat(string_buf, "String constant too long");
-                          cool_yylval.error_msg = string_buf;
+                          set_error_message("String constant too long");
                           BEGIN 0;
                           return (ERROR);
                         } else {
@@ -197,9 +196,7 @@ STRING_END    {STRING_START}
                       }
 <string>[^\n"\\]*\n   {
                         curr_lineno++;
-                        string_buf[0] = '\0';
-                        strcat(string_buf, "Unterminated string constant");
-                        cool_yylval.error_msg = string_buf;
+                        set_error_message("Unterminated string constant");
                         BEGIN 0;
                         return (ERROR);
                       }
@@ -266,11 +263,18 @@ STRING_END    {STRING_START}
 "}"         {
               printf("#%i '%s'\n", curr_lineno, yytext);
             }
-\n          { curr_lineno++; }
+<INITIAL,comment>\n          { curr_lineno++; }
 [ \f\r\t\t] ;
+.						{}
 
 %%
 void append_string(char * yytext, int yyleng) {
   int len = strlen(string_buf);
   strncat(string_buf, yytext, MAX_STR_CONST - len);
+}
+
+void set_error_message(char * msg) {
+	string_buf[0] = '\0';
+	strcat(string_buf, msg);
+	cool_yylval.error_msg = string_buf;
 }
