@@ -43,6 +43,8 @@ extern YYSTYPE cool_yylval;
  *  Add Your own definitions here
  */
 
+int comment_nesting;
+
 void append_string(char * yytext, int yyleng);
 void set_error_message(char * msg);
 
