@@ -5,7 +5,7 @@ classroom.
 
 ## Progress
 
-* [ ] Programming Assignment 01
+* [x] Programming Assignment 01 (63/63)
 * [ ] Programming Assignment 02
 * [ ] Programming Assignment 03
 * [ ] Programming Assignment 04
