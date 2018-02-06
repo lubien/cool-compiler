@@ -138,9 +138,9 @@ FALSE    f{A}{L}{S}{E}
                 BEGIN INITIAL;
             }
 
-  [^(*\n]+    /* consume non "*" or "(" */
-  "*"*[^)\n]* /* many "(" not followed by "*" */
-  "("*[^*\n]* /* many "*" not followed by ")" */
+  [^(*\n]+   /* consume non "*" or "(" */
+  "*"*[^)\n] /* many "(" not followed by "*" */
+  "("*[^*\n] /* many "*" not followed by ")" */
 }
 
 "(*"      { BEGIN comment; }
