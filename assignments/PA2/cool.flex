@@ -92,7 +92,7 @@ ASSIGN          <-
 LE              <=
 
 INTERGER {DIGIT}+
-TYPE     ({CAPITAL_LETTER}({LETTER}|{DIGIT})*|SELF_TYPE)
+TYPE     ({CAPITAL_LETTER}({LETTER}|{DIGIT}|_)*|SELF_TYPE)
 ID       {MINUSCLE_LETTER}({LETTER}|{DIGIT}|_)*
 
 CLASS    {C}{L}{A}{S}{S}
