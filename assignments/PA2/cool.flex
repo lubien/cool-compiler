@@ -143,6 +143,10 @@ FALSE    f{A}{L}{S}{E}
   "("*[^*\n] /* many "*" not followed by ")" */
 }
 
+"*)"      {
+            set_error_message("Unmatched *)");
+            return (ERROR);
+          }
 "(*"      { BEGIN comment; }
 
  /*
