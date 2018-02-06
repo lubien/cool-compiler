@@ -50,8 +50,7 @@ void set_error_message(char * msg);
 
 %}
 
-%START string string_worry
-%x comment
+%x string comment found_null
 
 /*
  * Define names for regular expressions here.
@@ -116,9 +115,6 @@ NOT      {N}{O}{T}
 
 TRUE     t{R}{U}{E}
 FALSE    f{A}{L}{S}{E}
-
-STRING_START  \"
-STRING_END    {STRING_START}
 
 %%
 
@@ -195,59 +191,67 @@ STRING_END    {STRING_START}
   *
   */
 
-<string>{STRING_END}  {
-                        if (strlen(string_buf) == MAX_STR_CONST) {
-                          set_error_message("String constant too long");
-                          BEGIN 0;
-                          return (ERROR);
-                        } else {
-                          cool_yylval.symbol = stringtable.add_string(string_buf);
-                          BEGIN 0;
-                          return (STR_CONST);
-                        }
-                      }
-<string>[^\n"\\]*\\   {
-                        yyless(yyleng - 1);
-                        append_string(yytext, yyleng);
-                        BEGIN string_worry;
-                      }
-<string>[^\n"\\]*\n   {
-                        curr_lineno++;
-                        set_error_message("Unterminated string constant");
-                        BEGIN 0;
-                        return (ERROR);
-                      }
-<string>[^\n"\\]*     {
-                        append_string(yytext, yyleng);
-                      }
-<string_worry>\\n     {
-                        append_string("\n", 2);
-                        BEGIN string;
-                      }
-<string_worry>\\t     {
-                        append_string("\t", 2);
-                        BEGIN string;
-                      }
-<string_worry>\\b     {
-                        append_string("\b", 2);
-                        BEGIN string;
-                      }
-<string_worry>\\f     {
-                        append_string("\f", 2);
-                        BEGIN string;
-                      }
-<string_worry>\\?\n   {
-                        curr_lineno++;
-                        append_string("\n", 2);
-                        BEGIN string;
-                      }
-<string_worry>.       {
-                        BEGIN string;
-                      }
-{STRING_START}        {
-                        string_buf[0] = '\0';
-                        BEGIN string;
-                      }
+<string>{
+  <<EOF>> {
+            set_error_message("EOF in string constant");
+            BEGIN 0;
+            return (ERROR);
+          }
+  \"  {
+        BEGIN INITIAL;
+
+        if (strlen(string_buf) == MAX_STR_CONST) {
+          set_error_message("String constant too long");
+          BEGIN 0;
+          return (ERROR);
+        } else {
+          cool_yylval.symbol = stringtable.add_string(string_buf);
+          return (STR_CONST);
+        }
+      }
+
+  \n  {
+        curr_lineno++;
+        set_error_message("Unterminated string constant");
+        BEGIN 0;
+        return (ERROR);
+      }
+
+  \0    {
+          set_error_message("String contains null character.");
+          BEGIN found_null;
+          return (ERROR);
+        }
+  \\\0  {
+          set_error_message("String contains escaped null character.");
+          BEGIN found_null;
+          return (ERROR);
+        }
+  \\\"  append_string("\"", 2);
+  \\n   append_string("\n", 2);
+  \\t   append_string("\t", 2);
+  \\b   append_string("\b", 2);
+  \\f   append_string("\f", 2);
+  \\\n  {curr_lineno++; append_string(&yytext[1], 2); }
+  \\.   append_string(&yytext[1], 2);
+
+  [^\\\n"\0]+ {
+                append_string(yytext, yyleng);
+              }
+}
+
+\"  {
+      string_buf[0] = '\0';
+      string_buf_ptr = string_buf;
+      BEGIN string;
+    }
+
+<found_null>{
+  \"          { BEGIN INITIAL; }
+  .*[^\\]$    { BEGIN INITIAL; }
+  [^\\\n"]+   ;
+  \\\"        ;
+}
 
 {INTERGER}  {
               cool_yylval.symbol = inttable.add_string(yytext);
@@ -280,7 +284,7 @@ STRING_END    {STRING_START}
 "}"         {
               printf("#%i '%s'\n", curr_lineno, yytext);
             }
-<INITIAL,comment>\n curr_lineno++;
+<*>\n curr_lineno++;
 [ \f\r\t\t]         ;
 .                   ;
 
