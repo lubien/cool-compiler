@@ -290,7 +290,10 @@ FALSE    f{A}{L}{S}{E}
             }
 <*>\n curr_lineno++;
 [ \f\r\t\t]         ;
-.                   ;
+.                   {
+                      set_error_message(yytext);
+                      return (ERROR);
+                    }
 
 %%
 void append_string(char * yytext, int yyleng) {
