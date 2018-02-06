@@ -48,7 +48,8 @@ void set_error_message(char * msg);
 
 %}
 
-%START string string_worry comment
+%START string string_worry
+%x comment
 
 /*
  * Define names for regular expressions here.
@@ -119,18 +120,32 @@ STRING_END    {STRING_START}
 
 %%
 
-"--".*$       ;
+"--".*      ;
 
  /*
   *  Nested comments
   */
 
-<comment>"*)"       { BEGIN 0; }
-<comment>\n         { curr_lineno++; }
-<comment>"*"/[^)]   ;
-<comment>")"        ;
-<comment>[^\*\)\n]+ ;
-"(*"                { BEGIN comment; }
+<comment>{
+  <<EOF>>   {
+              set_error_message("EOF in comment");
+              BEGIN 0;
+              return (ERROR);
+            }
+  "(*"      comment_nesting++;
+  "*"+")"   {
+              if (comment_nesting)
+                --comment_nesting;
+              else
+                BEGIN INITIAL;
+            }
+
+  [^(*\n]+    /* consume non "*" or "(" */
+  "*"*[^)\n]* /* many "(" not followed by "*" */
+  "("*[^*\n]* /* many "*" not followed by ")" */
+}
+
+"(*"      { BEGIN comment; }
 
  /*
   *  The multiple-character operators.
@@ -263,9 +278,9 @@ STRING_END    {STRING_START}
 "}"         {
               printf("#%i '%s'\n", curr_lineno, yytext);
             }
-<INITIAL,comment>\n          { curr_lineno++; }
-[ \f\r\t\t] ;
-.						{}
+<INITIAL,comment>\n curr_lineno++;
+[ \f\r\t\t]         ;
+.                   ;
 
 %%
 void append_string(char * yytext, int yyleng) {
@@ -274,7 +289,7 @@ void append_string(char * yytext, int yyleng) {
 }
 
 void set_error_message(char * msg) {
-	string_buf[0] = '\0';
-	strcat(string_buf, msg);
-	cool_yylval.error_msg = string_buf;
+  string_buf[0] = '\0';
+  strcat(string_buf, msg);
+  cool_yylval.error_msg = string_buf;
 }
