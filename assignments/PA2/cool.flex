@@ -289,7 +289,7 @@ FALSE    f{A}{L}{S}{E}
               printf("#%i '%s'\n", curr_lineno, yytext);
             }
 <*>\n curr_lineno++;
-[ \f\r\t\t]         ;
+[ \f\r\t\t\013]     ;
 .                   {
                       set_error_message(yytext);
                       return (ERROR);
